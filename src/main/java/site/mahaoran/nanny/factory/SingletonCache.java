@@ -1,108 +1,67 @@
 package site.mahaoran.nanny.factory;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
-public class SingletonCache {
+/**
+ * 单例缓存容器，用来存储工厂中创建过的单例对象。
+ *
+ * @author mahaoran
+ * @since 2021-01-19
+ */
+public interface SingletonCache {
 
-    private final Map<String, Object> singletonObjects = new HashMap<>();
+    /**
+     * 向一级缓存中添加一个实例对象，该实例对象是一个完整的可用的对象。
+     * @param name bean名称
+     * @param object bean实例
+     */
+    void addWholeSingleton(String name, Object object);
 
-    private final Map<String, Object> earlySingletonObjects = new HashMap<>();
+    /**
+     * 向二级缓存中添加一个实例对象，该实例对象是一个不完整的对象，只有实例化没有初始化。
+     * @param name bean名称
+     * @param object bean实例
+     */
+    void addEarlySingleton(String name, Object object);
 
-    private final Map<String, Supplier<?>> singletonSuppliers = new HashMap<>();
+    /**
+     * 向三级缓存中添加一个supplier，该supplier表示提供经过特殊处理的新的实例对象，
+     * 该对象只完成了实例化，没有初始化。
+     * @param name bean名称
+     * @param objectSupplier bean提供程序
+     */
+    void addSingletonSupplier(String name, Supplier<?> objectSupplier);
 
-    private final Set<String> creatingSingletonObjects = new LinkedHashSet<>();
+    /**
+     * 从所有缓存中移除指定的实例对象。
+     * @param name bean名称
+     */
+    void removeSingleton(String name);
 
-    private final Set<String> createdSingletonObjects = new LinkedHashSet<>();
+    /**
+     * 从缓存中获取指定的对象
+     * @param name bean名称
+     * @return bean实例
+     */
+    Object getSingleton(String name);
 
+    /**
+     * 从缓存中获取指定的对象，若对象不存在，使用提供程序生成实例然后返回。
+     * @param name bean名称
+     * @param singletonSupplier 实例提供程序
+     * @return bean实例
+     */
+    Object getSingleton(String name, Supplier<?> singletonSupplier);
 
-    public void addSingletonObject(String beanName, Object singletonObject) {
-        this.singletonObjects.put(beanName, singletonObject);
-        this.earlySingletonObjects.remove(beanName);
-        this.singletonSuppliers.remove(beanName);
-        this.createdSingletonObjects.add(beanName);
-    }
+    /**
+     * 清理缓存
+     */
+    void clearSingleton();
 
-    public void addEarlySingletonObject(String beanName, Object earlySingletonObject) {
-        if (singletonObjects.containsKey(beanName)) return;
-        this.earlySingletonObjects.put(beanName, earlySingletonObject);
-        this.singletonSuppliers.remove(beanName);
-        this.createdSingletonObjects.add(beanName);
-    }
-
-    public void addSingletonSupplier(String beanName, Supplier<?> singletonSupplier) {
-        if (singletonObjects.containsKey(beanName)) return;
-        if (earlySingletonObjects.containsKey(beanName)) return;
-        this.singletonSuppliers.put(beanName, singletonSupplier);
-        this.createdSingletonObjects.add(beanName);
-    }
-
-    public void removeSingleton(String beanName) {
-        this.singletonObjects.remove(beanName);
-        this.earlySingletonObjects.remove(beanName);
-        this.singletonSuppliers.remove(beanName);
-        this.createdSingletonObjects.remove(beanName);
-    }
-
-    public Object getSingleton(String beanName) {
-        Object singletonObject = this.singletonObjects.get(beanName);
-        if (singletonObject == null && isSingletonCreating(beanName)) {
-            singletonObject = this.earlySingletonObjects.get(beanName);
-            if (singletonObject == null) {
-                Supplier<?> singletonSupplier = this.singletonSuppliers.get(beanName);
-                if (singletonSupplier != null) {
-                    singletonObject = singletonSupplier.get();
-                    addEarlySingletonObject(beanName, singletonObject);
-                }
-            }
-        }
-        return singletonObject;
-    }
-
-    public Object getSingleton(String beanName, Supplier<?> singletonSupplier) {
-        Object singletonObject = this.singletonObjects.get(beanName);
-        if (singletonObject == null) {
-            if (isSingletonCreating(beanName)) {
-                throw new RuntimeException("实例已经在创建了，请不要重复创建。");
-            }
-            this.creatingSingletonObjects.add(beanName);
-            try {
-                singletonObject = singletonSupplier.get();
-            } catch (Exception e) {
-                throw new RuntimeException("创建实例失败");
-            }
-            this.creatingSingletonObjects.remove(beanName);
-            if (singletonObject != null) {
-                addSingletonObject(beanName, singletonObject);
-            }
-        }
-        return singletonObject;
-    }
-
-    public boolean containsSingleton(String beanName) {
-        return this.singletonObjects.containsKey(beanName);
-    }
-
-    public String[] getSingletonNames() {
-        return this.createdSingletonObjects.toArray(new String[0]);
-    }
-
-    public int getSingletonCount() {
-        return createdSingletonObjects.size();
-    }
-
-    public void clearSingletonCache() {
-        this.singletonObjects.clear();
-        this.earlySingletonObjects.clear();
-        this.singletonSuppliers.clear();
-        this.creatingSingletonObjects.clear();
-        this.createdSingletonObjects.clear();
-    }
-
-    private boolean isSingletonCreating(String beanName) {
-        return creatingSingletonObjects.contains(beanName);
-    }
+    /**
+     * 判断指定实例是否正在创建过程中
+     * @param name bean名称
+     * @return 是否正在创建
+     */
+    boolean isCreating(String name);
 }

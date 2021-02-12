@@ -1,5 +1,6 @@
 package site.mahaoran.nanny.beans;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -12,9 +13,9 @@ public class BeanDefinition {
 
     private BeanLifecycle lifecycle;
 
-    private final Map<String, Object> constructorArguments;
+    private final Map<String, InjectValue> constructorArguments;
 
-    private final Map<String, Object> injectProperties;
+    private final Map<String, InjectValue> injectProperties;
 
     private Supplier<?> instanceSupplier;
 
@@ -42,21 +43,17 @@ public class BeanDefinition {
         this.instance = instance;
     }
 
+    public BeanDefinition(Class<?> beanClass, String beanName, Supplier<?> instanceSupplier) {
+        this(beanClass, beanName, BeanLifecycle.SINGLETON);
+        this.instanceSupplier = instanceSupplier;
+    }
+
     public BeanDefinition(Class<?> beanClass, String beanName, BeanLifecycle lifecycle) {
         this.beanClass = beanClass;
         this.beanName = beanName;
         this.lifecycle = lifecycle;
         this.constructorArguments = new HashMap<>();
         this.injectProperties = new HashMap<>();
-    }
-
-    public BeanDefinition(Class<?> beanClass, String beanName, Supplier<?> instanceSupplier) {
-        this.beanClass = beanClass;
-        this.beanName = beanName;
-        this.lifecycle = BeanLifecycle.SINGLETON;
-        this.constructorArguments = new HashMap<>();
-        this.injectProperties = new HashMap<>();
-        this.instanceSupplier = instanceSupplier;
     }
 
     public Class<?> getBeanClass() {
@@ -75,19 +72,27 @@ public class BeanDefinition {
         this.beanName = beanName;
     }
 
-    public BeanLifecycle getLifecycle() {
-        return lifecycle;
+    public boolean isSingleton() {
+        return lifecycle == BeanLifecycle.SINGLETON;
+    }
+
+    public boolean isPrototype() {
+        return lifecycle == BeanLifecycle.PROTOTYPE;
+    }
+
+    public boolean isAbstract() {
+        return Modifier.isAbstract(beanClass.getModifiers()) || Modifier.isInterface(beanClass.getModifiers());
     }
 
     public void setLifecycle(BeanLifecycle lifecycle) {
         this.lifecycle = lifecycle;
     }
 
-    public Map<String, Object> getConstructorArguments() {
+    public Map<String, InjectValue> getConstructorArguments() {
         return constructorArguments;
     }
 
-    public Map<String, Object> getInjectProperties() {
+    public Map<String, InjectValue> getInjectProperties() {
         return injectProperties;
     }
 
