@@ -41,6 +41,11 @@ public class BeanFactoryTest {
     }
 
     @Test
+    void testContainBean() {
+        assertTrue(beanFactory.containBean("benz"));
+    }
+
+    @Test
     void testGetBean() {
         var xxx = beanFactory.getBean("xxx");
         assertNull(xxx);
@@ -50,8 +55,10 @@ public class BeanFactoryTest {
         var benzByName = beanFactory.getBean("benz");
         var benzByClass = beanFactory.getBean(Benz.class);
         var benzByBoth = beanFactory.getBean(Benz.class, "benz");
+        var car = beanFactory.getBean(Car.class);
         assertEquals(benzByName, benzByClass);
         assertEquals(benzByClass, benzByBoth);
+        assertEquals(benzByBoth, car);
 
         var benzOfParent = beanFactory.getBean("BenzInParent");
         assertNotEquals(benzByBoth, benzOfParent);
@@ -59,6 +66,12 @@ public class BeanFactoryTest {
         var person = beanFactory.getBean(Person.class, "person");
         assertEquals("mahaoran", person.getName());
         assertEquals(benzByBoth, person.getCar());
+    }
+
+    @Test
+    void testRemoveBean() {
+        beanFactory.removeBean("benz");
+        assertFalse(beanFactory.containBean("benz"));
     }
 
     @Test
