@@ -1,15 +1,14 @@
 package site.mahaoran.nanny.factory;
 
 import site.mahaoran.nanny.beans.BeanDefinition;
+import site.mahaoran.nanny.exception.BeanNameHasExistsException;
+import site.mahaoran.nanny.exception.MatchedBeanNotUniqueException;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
+public class DefaultBeanRegistry implements BeanRegistry {
 
-    private final List<BeanDefinition> beanDefinitions = new LinkedList<>();
+    private final Set<BeanDefinition> beanDefinitions = new HashSet<>();
     private final Map<String, BeanDefinition> nameIndex = new HashMap<>();
     private final Map<Class<?>, List<BeanDefinition>> typeIndex = new HashMap<>();
 
@@ -17,7 +16,7 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
     public void addBeanDefinition(BeanDefinition beanDefinition) {
         var beanName = beanDefinition.getBeanName();
         if (containBeanDefinition(beanName)) {
-            throw new RuntimeException(beanName + "已存在");
+            throw new BeanNameHasExistsException(beanName);
         }
         beanDefinitions.add(beanDefinition);
         nameIndex.put(beanName, beanDefinition);
@@ -60,7 +59,7 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
             return definitions.get(0);
         }
         if (definitions != null && definitions.size() > 1) {
-            throw new RuntimeException(beanClass.getName() + "有多个匹配的bean定义");
+            throw new MatchedBeanNotUniqueException(beanClass);
         }
         var count = 0;
         BeanDefinition definition = null;
@@ -74,7 +73,7 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
             }
         }
         if (count > 1) {
-            throw new RuntimeException("匹配 '" + beanClass.getName() + "' 的定义有多个");
+            throw new MatchedBeanNotUniqueException(beanClass);
         }
         return count == 1 ? definition : null;
     }
@@ -89,5 +88,17 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
     @Override
     public boolean containBeanDefinition(String beanName) {
         return nameIndex.containsKey(beanName);
+    }
+
+    @Override
+    public int getBeanDefinitionCount() {
+        return beanDefinitions.size();
+    }
+
+    @Override
+    public void clearBeanDefinitions() {
+        beanDefinitions.clear();
+        nameIndex.clear();
+        typeIndex.clear();
     }
 }

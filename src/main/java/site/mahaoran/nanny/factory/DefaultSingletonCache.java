@@ -1,5 +1,7 @@
 package site.mahaoran.nanny.factory;
 
+import site.mahaoran.nanny.exception.CircularDependencyException;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,7 +68,7 @@ public class DefaultSingletonCache implements SingletonCache {
         var object = wholeSingletons.get(name);
         if (object == null) {
             if (isCreating(name)) {
-                throw new RuntimeException("遇到循环依赖");
+                throw new CircularDependencyException(name);
             }
             creatingSingletons.add(name);
             object = singletonSupplier.get();

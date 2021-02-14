@@ -9,8 +9,7 @@ import site.mahaoran.nanny.beans.BeanDefinition;
  * @author mahaoran
  * @since 2021-01-18
  */
-public interface BeanDefinitionRegistry {
-
+public interface BeanRegistry {
 
     /**
      * 向注册表中添加一条bean定义记录
@@ -59,4 +58,15 @@ public interface BeanDefinitionRegistry {
      * @return 是否存在同名bean
      */
     boolean containBeanDefinition(String beanName);
+
+    /**
+     * 获取注册表中记录的总数
+     * @return 总记录条数
+     */
+    int getBeanDefinitionCount();
+
+    /**
+     * 删除所有的的bean定义记录
+     */
+    void clearBeanDefinitions();
 }

@@ -1,6 +1,7 @@
 package site.mahaoran.nanny.factory;
 
 import site.mahaoran.nanny.beans.BeanDefinition;
+import site.mahaoran.nanny.exception.BeanNameHasExistsException;
 
 /**
  * bean工厂，为管理bean提供一个统一的接口，
@@ -52,6 +53,11 @@ public interface BeanFactory {
      * @return 是否包含指定的bean
      */
     boolean containBean(String beanName);
+
+    /**
+     * 清除工厂中的所有bean
+     */
+    void clear();
 
     /**
      * 为工厂指定一个父工厂
