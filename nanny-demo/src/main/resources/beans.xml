@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <bean name="repository" class="nanny.demo.model.RepositoryImpl" lifecycle="singleton"/>
+
+    <bean name="service" class="nanny.demo.model.ServiceImpl">
+        <argument name="repository" reference="repository"/>
+    </bean>
+
+    <bean name="controller" class="nanny.demo.model.Controller">
+        <property name="service" reference="service"/>
+    </bean>
+</beans>
