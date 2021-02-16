@@ -48,6 +48,11 @@ public class BeanDefinition {
         this.instanceSupplier = instanceSupplier;
     }
 
+    public BeanDefinition(Class<?> beanClass, String beanName, Supplier<?> instanceSupplier, BeanLifecycle lifecycle) {
+        this(beanClass, beanName, lifecycle);
+        this.instanceSupplier = instanceSupplier;
+    }
+
     public BeanDefinition(Class<?> beanClass, String beanName, BeanLifecycle lifecycle) {
         this.beanClass = beanClass;
         this.beanName = beanName;

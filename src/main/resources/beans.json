@@ -1,0 +1,21 @@
+[
+  {
+    "name": "benz",
+    "class": "site.mahaoran.nanny.test.model.Benz",
+    "lifecycle": "singleton"
+  },
+  {
+    "name": "person",
+    "class": "site.mahaoran.nanny.test.model.Person",
+    "lifecycle": "singleton",
+    "argument": [
+      {
+        "name": "name",
+        "value": "mahaoran"
+      }
+    ],
+    "property": [
+
+    ]
+  }
+]

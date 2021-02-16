@@ -95,9 +95,11 @@ public class DefaultBeanFactory implements BeanFactory{
             }
         } else {
             Supplier<?> instanceSupplier = beanDefinition.getInstanceSupplier();
-            bean = instanceSupplier.get();
-            if (bean != null && requireType.isAssignableFrom(bean.getClass())) {
-                return (T) bean;
+            if (instanceSupplier != null) {
+                bean = instanceSupplier.get();
+                if (bean != null && requireType.isAssignableFrom(bean.getClass())) {
+                    return (T) bean;
+                }
             }
             bean = singletonCache.getSingleton(beanName, () -> createBean(beanDefinition));
             if (bean != null && requireType.isAssignableFrom(bean.getClass())) {

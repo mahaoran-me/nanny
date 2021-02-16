@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <bean name="benz" class="site.mahaoran.nanny.test.model.Benz" lifecycle="singleton"/>
+
+    <bean name="person" class="site.mahaoran.nanny.test.model.Person" lifecycle="singleton">
+        <argument name="name" value="mahaoran"/>
+        <argument name="age" value="22" type="int"/>
+        <argument name="car" reference="benz"/>
+        <property name="car" reference="benz"/>
+    </bean>
+</beans>

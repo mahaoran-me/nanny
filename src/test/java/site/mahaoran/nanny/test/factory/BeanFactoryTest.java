@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import site.mahaoran.nanny.beans.BeanDefinition;
+import site.mahaoran.nanny.beans.BeanLifecycle;
 import site.mahaoran.nanny.beans.InjectValue;
 import site.mahaoran.nanny.exception.*;
 import site.mahaoran.nanny.factory.BeanFactory;
@@ -66,6 +67,21 @@ public class BeanFactoryTest {
         var person = beanFactory.getBean(Person.class, "person");
         assertEquals("mahaoran", person.getName());
         assertEquals(benzByBoth, person.getCar());
+    }
+
+    @Test
+    void testGetBean2() {
+        beanFactory.clear();
+        beanFactory.registerBean(new BeanDefinition(Benz.class, "benz"));
+        var personDefinition = new BeanDefinition(Person.class, "person", BeanLifecycle.PROTOTYPE);
+        personDefinition.getConstructorArguments().put("name", new InjectValue((Object)"mahaoran"));
+        personDefinition.getConstructorArguments().put("age", new InjectValue(22));
+        beanFactory.registerBean(personDefinition);
+
+        var person1 = beanFactory.getBean(Person.class, "person");
+        var person2 = beanFactory.getBean(Person.class, "person");
+        assertNotEquals(person1, person2);
+        assertEquals(person1.getCar(), person2.getCar());
     }
 
     @Test
