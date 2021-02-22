@@ -8,10 +8,12 @@ public class ServiceImpl implements Service {
         this.repository = repository;
     }
 
+    @Override
     public Repository getRepository() {
         return repository;
     }
 
+    @Override
     public void setRepository(Repository repository) {
         this.repository = repository;
     }

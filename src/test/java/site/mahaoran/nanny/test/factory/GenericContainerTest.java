@@ -1,6 +1,7 @@
 package site.mahaoran.nanny.test.factory;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import site.mahaoran.nanny.beans.BeanLifecycle;
 import site.mahaoran.nanny.container.Container;
@@ -16,8 +17,8 @@ public class GenericContainerTest {
 
     private static Container container;
 
-    @BeforeAll
-    static void init() {
+    @BeforeEach
+    void init() {
         container = new GenericContainer();
     }
 

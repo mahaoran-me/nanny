@@ -9,4 +9,12 @@
     <bean name="controller" class="nanny.demo.model.Controller">
         <property name="service" reference="service"/>
     </bean>
+
+    <bean name="student" class="nanny.demo.model.Student">
+        <property name="teacher" reference="teacher"/>
+    </bean>
+
+    <bean name="teacher" class="nanny.demo.model.Teacher">
+        <property name="student" reference="student"/>
+    </bean>
 </beans>

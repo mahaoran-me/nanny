@@ -102,6 +102,7 @@ public class DefaultBeanFactory implements BeanFactory{
                 }
             }
             bean = singletonCache.getSingleton(beanName, () -> createBean(beanDefinition));
+            singletonCache.removeSingleton(beanName);
             if (bean != null && requireType.isAssignableFrom(bean.getClass())) {
                 return (T) bean;
             }

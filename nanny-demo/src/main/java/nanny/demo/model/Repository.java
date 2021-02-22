@@ -1,5 +1,3 @@
 package nanny.demo.model;
 
-public interface Repository {
-
-}
+public interface Repository {}
