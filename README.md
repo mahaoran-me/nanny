@@ -154,7 +154,7 @@ public class GenericContainerClient {
 ```
 
 ### 使用xml文件方式
-在classpath下生命beans.xml文件内容如下：
+在classpath下创建beans.xml文件内容如下：
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans>
@@ -189,6 +189,6 @@ public class XmlConfigContainerClient {
 }
 ```
 
-这是目前支持的两种配置方式，以后还会支持注解驱动方式。
+这是目前支持的两种配置方式，未来还打算支持注解驱动方式。
 
 关于其他的用法细节，以后慢慢更新。
