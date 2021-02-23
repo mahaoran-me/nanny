@@ -1,9 +1,9 @@
 package nanny.demo.model;
 
-public interface Service {
+    public interface Service {
 
-    Repository getRepository();
+        Repository getRepository();
 
-    void setRepository(Repository repository);
+        void setRepository(Repository repository);
 
-}
+    }
