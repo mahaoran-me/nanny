@@ -56,3 +56,139 @@
 一个，创建过程通过反射完成，先通过构造函数创建实例，然后加入三级缓存，然后注入属性，如果生命周期是singleton就将其加入一级缓存，最后返回创建好的bean。
 
 时序图大致如下：![sequential](src/main/resources/image/sequential.png)
+
+## 简单上手
+
+### 使用前声明：
+由于在使用构造器注入的时候可能使用到参数名，而jdk默认的是反射拿不到这些参数名，所以在编译时需要额外
+添加-parameter参数，例如 javac -parameter xxx.java，如果使用maven的话，需要在pom.xml中添加
+如下配置：
+```xml
+<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <compilerArgument>-parameters</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+```
+### 用例准备
+现在假设系统由三个组件组成：Repository、Service、Controller，具有如下接口和实现类：
+```java
+public interface Repository {}
+public class RepositoryImpl implements Repository   {}
+
+public interface Service {
+  Repository getRepository();
+  void setRepository(Repository repository);
+}
+public class ServiceImpl implements Service {
+  private Repository repository;
+  public ServiceImpl(Repository repository) {
+    this.repository = repository;
+  }
+  @Override
+  public Repository getRepository() {
+    return repository;
+  }
+  @Override
+  public void setRepository(Repository repository) {
+    this.repository = repository;
+  }
+}
+
+public class Controller {
+  private Service service;
+  public Service getService() {
+    return service;
+  }
+  public void setService(Service service) {
+    this.service = service;
+  }
+}
+```
+
+### 使用编程方式
+```java
+public class GenericContainerClient {
+  public static void main(String[] args) {
+    // 创建一个通用IOC容器
+    Container container = new GenericContainer();
+    // 向容器中注册一个Repository的实现类，命名为"repository"。
+    // 本次注册方式只需提供类型和名称就行，生命周期默认singleton。
+    container.registerBean(RepositoryImpl.class, "repositoryBean");
+
+    // 手动构造一个bean定义，指定类型和名称以及构造器参数。
+    var serviceDefinition = new BeanDefinition(ServiceImpl.class, "serviceBean", BeanLifecycle.SINGLETON);
+    // 指定构造器参数“repository”将被注入名为“repositoryBean”的bean实例。
+    serviceDefinition.getConstructorArguments().put("repository", new InjectValue("repositoryBean"));
+    // 将该bean定义注册到容器
+    container.registerBean(serviceDefinition);
+
+    // 手动构造一个Controller类型的bean定义，指定名称为“controllerBean”，默认生命周期为singleton。
+    var controllerDefinition = new BeanDefinition(Controller.class, "controllerBean");
+    // 指定属性“service”将被注入名为“serviceBean”的bean实例。
+    controllerDefinition.getInjectProperties().put("service", new InjectValue("serviceBean"));
+    // 将该bean定义注册到容器
+    container.registerBean(controllerDefinition);
+
+    // 测试是否成功构造依赖关系
+
+    // 先分别从容器中取出各个实例
+    Repository repository = container.getBean(Repository.class, "repositoryBean");
+    Service service = container.getBean(Service.class, "serviceBean");
+    Controller controller = container.getBean(Controller.class, "controllerBean");
+
+    // 然后验证依赖是否注入正确
+    assert service.getRepository() == repository;
+    assert controller.getService() == service;
+  }
+}
+```
+
+### 使用xml文件方式
+在classpath下生命beans.xml文件内容如下：
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <bean name="repository" class="nanny.demo.model.RepositoryImpl" lifecycle="singleton"/>
+
+    <bean name="service" class="nanny.demo.model.ServiceImpl">
+        <argument name="repository" reference="repository"/>
+    </bean>
+
+    <bean name="controller" class="nanny.demo.model.Controller">
+        <property name="service" reference="service"/>
+    </bean>
+</beans>
+```
+```java
+public class XmlConfigContainerClient {
+    public static void main(String[] args) {
+        // 通过xml配置文件初始化容器
+        Container container = new XmlConfigContainer("beans.xml");
+        
+        // 测试是否成功构造依赖关系
+
+        // 先分别从容器中取出各个实例
+        var repository = container.getBean(Repository.class, "repository");
+        var service = container.getBean(Service.class, "service");
+        var controller = container.getBean(Controller.class, "controller");
+
+        // 然后验证依赖是否注入正确
+        assert service.getRepository() == repository;
+        assert controller.getService() == service;
+    }
+}
+```
+
+这是目前支持的两种配置方式，以后还会支持注解驱动方式。
+
+关于其他的用法细节，以后慢慢更新。
