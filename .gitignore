@@ -1,3 +1,11 @@
 .idea/
 target/
 nanny.iml
+
+.settings/
+.project
+.classpath
+
+nanny-demo/.settings/
+nanny-demo/.project
+nanny-demo/.classpath
